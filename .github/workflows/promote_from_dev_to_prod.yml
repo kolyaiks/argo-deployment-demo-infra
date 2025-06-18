@@ -1,0 +1,55 @@
+name: Promote from DEV to PROD
+
+on:
+  workflow_dispatch:
+    inputs:
+      IMAGE_TAG:
+        description: 'set the image tag from dev you want to promote to prod'
+        required: true
+
+jobs:
+
+  update_deployment_yaml_for_higher_overlays:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            repository: kolyaiks/argo-deployment-demo-infra
+            ref: dev
+            token: ${{secrets.ARGO_DEPLOYMENT_DEMO_INFRA_REPO_PAT}}
+
+      - uses: imranismail/setup-kustomize@v2
+
+      # to use with while logging into ECR
+      - name: Setup AWS ECR Details
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{secrets.AWS_REGION}}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Updating the image version in deployment YAML for prod
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: kustomize edit set image $ECR_REGISTRY/argo-deployment-demo-app:0.0.1=$ECR_REGISTRY/argo-deployment-demo-app:${{ github.event.inputs.IMAGE_TAG }}
+        working-directory: k8s-yaml/app/argo-deployment-demo-app/overlays/prod
+
+      - name: Pushing updated yaml to dev branch of IAC repo
+        env:
+          IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
+        run: |
+          git config user.email "gitops@niks.cloud" 
+          git config user.name "gitops"
+          git commit -am "Bumping application version for higher env to $IMAGE_TAG"
+          git pull --rebase
+          git push origin dev
+      - name: Create pull request from dev to main
+        env:
+          GITHUB_TOKEN: ${{secrets.ARGO_DEPLOYMENT_DEMO_INFRA_REPO_PAT}}
+          IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
+        run:
+          gh pr create -B main -H dev --title "Merge dev into main to promote $IMAGE_TAG" --body 'Created by Github action'

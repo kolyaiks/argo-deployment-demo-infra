@@ -5,7 +5,7 @@ resource "aws_route53_record" "domain_names" {
 
   allow_overwrite = true
   name            = "${each.key}.${var.hosted_zone_name}"
-  records         = ["k8s-lbgroup-c3ecb3cba5-2061125775.us-east-1.elb.amazonaws.com"]
+  records         = ["k8s-lbgroup-c3ecb3cba5-1561991941.us-east-1.elb.amazonaws.com"]
   ttl             = 60
   type            = "CNAME"
   zone_id         = data.aws_route53_zone.public_hosted_zone.zone_id
