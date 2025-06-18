@@ -5,8 +5,8 @@ resources:
 
 images:
 - name: 123456789123.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app:0.0.1
-  newName: 228305238849.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app #TODO: set the image here
-  newTag: 0.0.1
+  newName: 228305238849.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app
+  newTag: 0.0.4
 
 labels:
 - includeSelectors: true
@@ -50,7 +50,7 @@ patches:
       value: 443
   target:
     kind: Service
-    name:  argo-deployment-demo-app-svc
+    name: argo-deployment-demo-app-svc
 - patch: |
     - op: replace
       path: /spec/rules/0/host
