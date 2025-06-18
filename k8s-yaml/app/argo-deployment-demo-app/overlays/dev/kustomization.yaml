@@ -1,0 +1,71 @@
+namespace: dev
+
+resources:
+- ../../base
+
+images:
+- name: 123456789123.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app:0.0.1
+  newName: 228305238849.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app #TODO: set the image here
+  newTag: 0.0.1
+
+labels:
+- includeSelectors: true
+  pairs:
+    app: argo-deployment-demo-app-dev
+
+# Creating a ConfigMap by overriding the base's application.properties with the overlay's one
+configMapGenerator:
+- behavior: merge
+  files:
+  - application.properties
+  name: application-configuration
+
+#        - op: replace
+#          path: /spec/template/spec/containers/0/env/0/value
+#          value: dev
+patches:
+- patch: |
+    - op: replace
+      path: /metadata/name
+      value: dev
+  target:
+    kind: Namespace
+    name: namespace_name
+- patch: |
+    - op: replace
+      path: /spec/replicas
+      value: 1
+    - op: replace
+      path: /metadata/name
+      value: argo-deployment-demo-app-dev
+  target:
+    kind: Deployment
+    name: argo-deployment-demo-app
+- patch: |
+    - op: replace
+      path: /metadata/name
+      value: argo-deployment-demo-app-dev-svc
+    - op: replace
+      path: /spec/ports/0/port
+      value: 443
+  target:
+    kind: Service
+    name:  argo-deployment-demo-app-svc
+- patch: |
+    - op: replace
+      path: /spec/rules/0/host
+      value: dev-app.niks.cloud ##TODO: set the actual name here
+    - op: replace
+      path: /metadata/name
+      value: ingress-dev
+    - op: replace
+      path: /spec/rules/0/http/paths/0/backend/service/name
+      value: argo-deployment-demo-app-dev-svc
+    - op: replace
+      path: /spec/rules/0/http/paths/0/backend/service/port/number
+      value: 443
+  target:
+    kind: Ingress
+    name: ingress
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
