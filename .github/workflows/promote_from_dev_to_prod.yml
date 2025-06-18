@@ -47,6 +47,7 @@ jobs:
           git commit -am "Bumping application version for higher env to $IMAGE_TAG"
           git pull --rebase
           git push origin dev
+          
       - name: Create pull request from dev to main
         env:
           GITHUB_TOKEN: ${{secrets.ARGO_DEPLOYMENT_DEMO_INFRA_REPO_PAT}}
