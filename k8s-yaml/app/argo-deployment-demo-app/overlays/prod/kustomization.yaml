@@ -57,7 +57,7 @@ patches:
       value: prod-app.niks.cloud ##TODO: set the actual name here
     - op: replace
       path: /metadata/name
-      value: ingress-prod-de
+      value: ingress-prod
     - op: replace
       path: /spec/rules/0/http/paths/0/backend/service/name
       value: argo-deployment-demo-app-prod-svc
