@@ -1,2 +1,5 @@
 # argo-deployment-demo-infra
-Deploying a [SpringBoot app](https://github.com/kolyaiks/argo-deloyment-demo-app) to K8S cluster in AWS using GitHub actions and ArgoCD
+This is the demo project that shows how to deploy a [SpringBoot app](https://github.com/kolyaiks/argo-deloyment-demo-app) to K8S cluster in AWS using Terraform, GitHub actions and ArgoCD.
+
+## Overview
+![Architecture](https://github.com/kolyaiks/argo-deployment-demo-infra/blob/main/argo-deployment-demo.drawio.png)
