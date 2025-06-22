@@ -6,7 +6,7 @@ resources:
 images:
 - name: 123456789123.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app:0.0.1
   newName: 228305238849.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app
-  newTag: 0.0.8
+  newTag: 0.0.9
 
 labels:
 - includeSelectors: true
