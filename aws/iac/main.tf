@@ -62,41 +62,46 @@ resource "aws_eip" "nat1" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+  version = "~> 21.0"
 
-  cluster_name    = "${var.company_name}-cluster"
-  cluster_version = "1.35"
+  name               = "${var.company_name}-cluster"
+  kubernetes_version = "1.35"
 
-  cluster_endpoint_public_access       = var.cluster_endpoint_public_access
-  cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
+  endpoint_public_access       = var.cluster_endpoint_public_access
+  endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
   #  concat(
   #    [for item in module.vpc.nat_public_ips: "${item}/32"], # Nat gateway's IPs need to be added to the allow list since node groups need to interact with EKS API endpoint to join the cluster
   #    var.cluster_endpoint_public_access_allowed_from
   #  )
 
-  cluster_addons = {
-    coredns                         = {}
-    eks-pod-identity-agent          = {}
-    kube-proxy                      = {}
-    vpc-cni                         = {}
-    aws-ebs-csi-driver              = {}
-    amazon-cloudwatch-observability = { /*addon_version = "v2.5.0-eksbuild.1"*/ } # to stream logs from node to CloudWatch and get application logs under /aws/containerinsights/<company>-cluster/application
-    snapshot-controller             = {}                                          # to avoid log message "Failed to watch *v1.VolumeSnapshotContent: failed to list *v1.VolumeSnapshotContent: the server could not find the requested resource (get volumesnapshotcontents.snapshot.storage.k8s.io"
+  addons = {
+    coredns                = {}
+    eks-pod-identity-agent = { before_compute = true }
+    kube-proxy             = {}
+    vpc-cni                = { before_compute = true }
+    # aws-ebs-csi-driver = {
+    #   pod_identity_association = [{
+    #     role_arn        = module.aws_ebs_csi_pod_identity.iam_role_arn,
+    #     service_account = "ebs-csi-controller-sa",
+    #   }]
+    # }
+    amazon-cloudwatch-observability = {
+      configuration_values = jsonencode({}) ## skipping the default addon configuration to use the custom one
+      resolve_conflicts    = "OVERWRITE"
+    }                        # to stream logs from node to CloudWatch and get application logs under /aws/containerinsights/payorem-cluster/application
+    snapshot-controller = {} # to avoid log message "Failed to watch *v1.VolumeSnapshotContent: failed to list *v1.VolumeSnapshotContent: the server could not find the requested resource (get volumesnapshotcontents.snapshot.storage.k8s.io"
   }
-
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
   # EKS Managed Node Group(s)
-  eks_managed_node_group_defaults = {
-    instance_types = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
-  }
-
   eks_managed_node_groups = {
-    worker_node_group = {
-      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
-      ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["t3.medium"]
+    worker_ng_on_demand_1 = {
+      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups, but we use BOTTLEROCKET_x86_64 here
+      ami_type       = "BOTTLEROCKET_x86_64"
+      instance_types = ["t3.large", "t3a.large"]
+      #"Type of capacity associated with the EKS Node Group. Valid values: `ON_DEMAND`, `SPOT`"
+      capacity_type = "ON_DEMAND"
 
       # Once provisioned it's not possible to change via TF: https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2030
       min_size     = 1
@@ -114,14 +119,31 @@ module "eks" {
   # To add the current caller identity as an administrator
   enable_cluster_creator_admin_permissions = true
 
+  # access_entries = {
+  #   # One access entry with a policy associated
+  #   cluster_admin = {
+  #     kubernetes_groups = []
+  #     principal_arn     = "arn:aws:iam::356101363791:user/kolyaiks"
+  #
+  #     policy_associations = {
+  #       cluster_admin = {
+  #         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  #         access_scope = {
+  #           type = "cluster"
+  #         }
+  #       }
+  #     }
+  #   }
+  # }
+
   access_entries = {
     # One access entry with a policy associated
     cluster_admin = {
       kubernetes_groups = []
-      principal_arn     = "arn:aws:iam::356101363791:user/kolyaiks"
+      principal_arn     = var.aws_console_user ## account has to be the one used to work with the cluster
 
       policy_associations = {
-        cluster_admin = {
+        admin = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
           access_scope = {
             type = "cluster"
@@ -130,4 +152,5 @@ module "eks" {
       }
     }
   }
+
 }

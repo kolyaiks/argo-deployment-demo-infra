@@ -28,3 +28,7 @@ variable "domain_names" {
   description = "Domain names to use while creating R53 entries"
   type        = list(string)
 }
+
+variable "aws_console_user" {
+  description = "AWS Console user that's used to work with EKS UI, will be provided with admin access to EKS cluster"
+}
