@@ -7,9 +7,9 @@ metadata:
     kubernetes.io/ingress.class: "alb"
     alb.ingress.kubernetes.io/group.name: lb-group # allows to create 1 ALB for multiple ingress resources in any namespace
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/subnets: subnet-0a6fb13d603dc3131, subnet-063deb665d2ac2f4e  #TODO: set public subnets here
+    alb.ingress.kubernetes.io/subnets: subnet-0b701fa51266bd5be, subnet-0677ffc86e275f334  #TODO: set public subnets here
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:228305238849:certificate/79d0e200-16aa-4047-a6aa-9cbcb69cab46" #TODO: set cert here
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:228305238849:certificate/e1d0d5f2-33e5-4b58-9f54-75c311847739" #TODO: set cert here
     # Health Check Settings
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
