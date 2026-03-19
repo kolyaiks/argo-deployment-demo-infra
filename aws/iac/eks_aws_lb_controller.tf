@@ -1,4 +1,4 @@
-## Based on this article: https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
+# ## Based on this article: https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
 
 resource "aws_iam_policy" "policy" {
   name = "AWSLoadBalancerControllerIAMPolicy-${var.company_name}"
@@ -305,7 +305,8 @@ resource "helm_release" "aws-load-balancer-controller" {
   repository = "https://aws.github.io/eks-charts"
   version    = "1.4.1"
 
-  set = [{
+  set = [
+    {
     name  = "clusterName"
     value = module.eks.cluster_name
     },
@@ -321,6 +322,14 @@ resource "helm_release" "aws-load-balancer-controller" {
       name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
       value = aws_iam_role.alb-ingress-controller-role.arn
     },
+    {
+      name  = "vpcId"
+      value = module.vpc.vpc_id
+    },
+    {
+      name  = "region"
+      value = var.region
+    }
   ]
 
   depends_on = [module.eks]
