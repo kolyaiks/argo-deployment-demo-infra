@@ -65,7 +65,7 @@ module "eks" {
   version = "~> 20.0"
 
   cluster_name    = "${var.company_name}-cluster"
-  cluster_version = "1.32"
+  cluster_version = "1.35"
 
   cluster_endpoint_public_access       = var.cluster_endpoint_public_access
   cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
@@ -79,7 +79,7 @@ module "eks" {
     eks-pod-identity-agent          = {}
     kube-proxy                      = {}
     vpc-cni                         = {}
-    aws-ebs-csi-driver              = { addon_version = "v1.37.0-eksbuild.1" }
+    aws-ebs-csi-driver              = {}
     amazon-cloudwatch-observability = { /*addon_version = "v2.5.0-eksbuild.1"*/ } # to stream logs from node to CloudWatch and get application logs under /aws/containerinsights/<company>-cluster/application
     snapshot-controller             = {}                                          # to avoid log message "Failed to watch *v1.VolumeSnapshotContent: failed to list *v1.VolumeSnapshotContent: the server could not find the requested resource (get volumesnapshotcontents.snapshot.storage.k8s.io"
   }
@@ -99,9 +99,9 @@ module "eks" {
       instance_types = ["t3.medium"]
 
       # Once provisioned it's not possible to change via TF: https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2030
-      min_size     = 2
+      min_size     = 1
       max_size     = 10
-      desired_size = 2
+      desired_size = 1
 
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy    = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy" # Needed by the aws-ebs-csi-driver

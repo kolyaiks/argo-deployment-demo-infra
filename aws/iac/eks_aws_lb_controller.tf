@@ -305,25 +305,23 @@ resource "helm_release" "aws-load-balancer-controller" {
   repository = "https://aws.github.io/eks-charts"
   version    = "1.4.1"
 
-  set {
+  set = [{
     name  = "clusterName"
     value = module.eks.cluster_name
-  }
-
-  set {
-    name  = "image.tag"
-    value = "v2.4.2"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = local.serviceaccount_name
-  }
-
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = aws_iam_role.alb-ingress-controller-role.arn
-  }
+    },
+    {
+      name  = "image.tag"
+      value = "v2.4.2"
+    },
+    {
+      name  = "serviceAccount.name"
+      value = local.serviceaccount_name
+    },
+    {
+      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = aws_iam_role.alb-ingress-controller-role.arn
+    },
+  ]
 
   depends_on = [module.eks]
 }
