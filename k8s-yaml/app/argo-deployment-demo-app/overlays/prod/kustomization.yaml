@@ -34,7 +34,7 @@ patches:
 - patch: |
     - op: replace
       path: /spec/replicas
-      value: 1
+      value: 2
     - op: replace
       path: /metadata/name
       value: argo-deployment-demo-app-prod
