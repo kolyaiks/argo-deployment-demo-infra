@@ -8,6 +8,7 @@ images:
   newName: 228305238849.dkr.ecr.us-east-1.amazonaws.com/argo-deployment-demo-app
   newTag: 0.0.17
 
+
 labels:
 - includeSelectors: true
   pairs:
