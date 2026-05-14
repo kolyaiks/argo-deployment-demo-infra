@@ -1,6 +1,6 @@
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.13.0"
+  version = "6.6.1"
 
   name = "${var.company_name}-vpc"
   cidr = "192.168.0.0/16"
@@ -62,7 +62,7 @@ resource "aws_eip" "nat1" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 21.0"
+  version = "21.20.0"
 
   name               = "${var.company_name}-cluster"
   kubernetes_version = "1.35"
@@ -86,8 +86,8 @@ module "eks" {
     #   }]
     # }
     amazon-cloudwatch-observability = {
-      configuration_values = jsonencode({}) ## skipping the default addon configuration to use the custom one
-      resolve_conflicts    = "OVERWRITE"
+      # configuration_values = jsonencode({}) ## skipping the default addon configuration to use the custom one
+      # resolve_conflicts    = "OVERWRITE"
     }                        # to stream logs from node to CloudWatch and get application logs under /aws/containerinsights/payorem-cluster/application
     snapshot-controller = {} # to avoid log message "Failed to watch *v1.VolumeSnapshotContent: failed to list *v1.VolumeSnapshotContent: the server could not find the requested resource (get volumesnapshotcontents.snapshot.storage.k8s.io"
   }
@@ -99,14 +99,14 @@ module "eks" {
     worker_ng_on_demand_1 = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups, but we use BOTTLEROCKET_x86_64 here
       ami_type       = "BOTTLEROCKET_x86_64"
-      instance_types = ["t3.large", "t3a.large"]
+      instance_types = ["t3.medium", "t3a.medium"]
       #"Type of capacity associated with the EKS Node Group. Valid values: `ON_DEMAND`, `SPOT`"
       capacity_type = "ON_DEMAND"
 
       # Once provisioned it's not possible to change via TF: https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2030
       min_size     = 1
       max_size     = 10
-      desired_size = 1
+      desired_size = 2
 
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy    = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy" # Needed by the aws-ebs-csi-driver
@@ -118,23 +118,6 @@ module "eks" {
   # Cluster access entry
   # To add the current caller identity as an administrator
   enable_cluster_creator_admin_permissions = true
-
-  # access_entries = {
-  #   # One access entry with a policy associated
-  #   cluster_admin = {
-  #     kubernetes_groups = []
-  #     principal_arn     = "arn:aws:iam::356101363791:user/kolyaiks"
-  #
-  #     policy_associations = {
-  #       cluster_admin = {
-  #         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-  #         access_scope = {
-  #           type = "cluster"
-  #         }
-  #       }
-  #     }
-  #   }
-  # }
 
   access_entries = {
     # One access entry with a policy associated
