@@ -7,3 +7,12 @@ This is the demo project that shows how to deploy a [SpringBoot app](https://git
 ## Access to ArgoCD
 1. `kubectl get secrets argocd-initial-admin-secret -o yaml -n argocd` - getting the secret
 2. `kubectl port-forward svc/argocd-server -n argocd 8080:80` - proxy local port 8080 to argocd's ui pod
+
+
+## Deploying to the cluster using just Kustomize
+
+k8s-yaml is using Kustomize frameworks, so deployment of this thing should look like: 
+```
+cd argo-deployment-demo-infra/k8s-yaml/app/argo-deployment-demo-app/overlays/
+kustomize build <overlay-name> | kubectl apply -f -
+```

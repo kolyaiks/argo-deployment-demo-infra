@@ -18,6 +18,17 @@ module "vpc" {
   ]
   enable_nat_gateway = false
   single_nat_gateway = false
+
+  # tags required for EKS discovery
+  public_subnet_tags = {
+    "kubernetes.io/role/elb" = "1"
+  }
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb" = "1"
+  }
+  tags = {
+    "kubernetes.io/cluster/${var.company_name}-cluster" = "shared"
+  }
 }
 
 module "nat0" {
@@ -106,7 +117,7 @@ module "eks" {
       # Once provisioned it's not possible to change via TF: https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2030
       min_size     = 1
       max_size     = 10
-      desired_size = 2
+      desired_size = var.worker_nodes_desired_amount
 
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy    = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy" # Needed by the aws-ebs-csi-driver
