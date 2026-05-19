@@ -35,6 +35,9 @@ resource "aws_iam_policy" "policy" {
                 "ec2:DescribeTags",
                 "ec2:GetCoipPoolUsage",
                 "ec2:DescribeCoipPools",
+                "ec2:GetSecurityGroupsForVpc",
+                "ec2:DescribeIpamPools",
+                "ec2:DescribeRouteTables",
                 "elasticloadbalancing:DescribeLoadBalancers",
                 "elasticloadbalancing:DescribeLoadBalancerAttributes",
                 "elasticloadbalancing:DescribeListeners",
@@ -45,7 +48,9 @@ resource "aws_iam_policy" "policy" {
                 "elasticloadbalancing:DescribeTargetGroupAttributes",
                 "elasticloadbalancing:DescribeTargetHealth",
                 "elasticloadbalancing:DescribeTags",
-                "elasticloadbalancing:DescribeTrustStores"
+                "elasticloadbalancing:DescribeTrustStores",
+                "elasticloadbalancing:DescribeListenerAttributes",
+                "elasticloadbalancing:DescribeCapacityReservation"
             ],
             "Resource": "*"
         },
@@ -194,7 +199,10 @@ resource "aws_iam_policy" "policy" {
                 "elasticloadbalancing:DeleteLoadBalancer",
                 "elasticloadbalancing:ModifyTargetGroup",
                 "elasticloadbalancing:ModifyTargetGroupAttributes",
-                "elasticloadbalancing:DeleteTargetGroup"
+                "elasticloadbalancing:DeleteTargetGroup",
+                "elasticloadbalancing:ModifyListenerAttributes",
+                "elasticloadbalancing:ModifyCapacityReservation",
+                "elasticloadbalancing:ModifyIpPools"
             ],
             "Resource": "*",
             "Condition": {
@@ -240,7 +248,8 @@ resource "aws_iam_policy" "policy" {
                 "elasticloadbalancing:ModifyListener",
                 "elasticloadbalancing:AddListenerCertificates",
                 "elasticloadbalancing:RemoveListenerCertificates",
-                "elasticloadbalancing:ModifyRule"
+                "elasticloadbalancing:ModifyRule",
+                "elasticloadbalancing:SetRulePriorities"
             ],
             "Resource": "*"
         }
@@ -303,7 +312,7 @@ resource "helm_release" "aws-load-balancer-controller" {
   name       = "aws-load-balancer-controller"
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
-  version    = "1.4.1"
+  version    = "3.3.0"
 
   set = [
     {
@@ -312,7 +321,7 @@ resource "helm_release" "aws-load-balancer-controller" {
     },
     {
       name  = "image.tag"
-      value = "v2.4.2"
+      value = "v3.3.0"
     },
     {
       name  = "serviceAccount.name"
@@ -329,6 +338,10 @@ resource "helm_release" "aws-load-balancer-controller" {
     {
       name  = "region"
       value = var.region
+    },
+    {
+      name  = "installCRDs"
+      value = "true"
     }
   ]
 

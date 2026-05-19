@@ -32,3 +32,8 @@ variable "domain_names" {
 variable "aws_console_user" {
   description = "AWS Console user that's used to work with EKS UI, will be provided with admin access to EKS cluster"
 }
+
+variable "worker_nodes_desired_amount" {
+  description = "How many worker nodes do you want to create"
+  default = 1
+}
