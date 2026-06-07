@@ -342,6 +342,14 @@ resource "helm_release" "aws-load-balancer-controller" {
     {
       name  = "installCRDs"
       value = "true"
+    },
+    {
+      name  = "controllerConfig.featureGates.NLBGatewayAPI"
+      value = "true"
+    },
+    {
+      name  = "controllerConfig.featureGates.ALBGatewayAPI"
+      value = "true"
     }
   ]
 

@@ -110,7 +110,7 @@ module "eks" {
     worker_ng_on_demand_1 = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups, but we use BOTTLEROCKET_x86_64 here
       ami_type       = "BOTTLEROCKET_x86_64"
-      instance_types = ["t3.medium", "t3a.medium"]
+      instance_types = ["t3.large", "t3a.large"]
       #"Type of capacity associated with the EKS Node Group. Valid values: `ON_DEMAND`, `SPOT`"
       capacity_type = "ON_DEMAND"
 
