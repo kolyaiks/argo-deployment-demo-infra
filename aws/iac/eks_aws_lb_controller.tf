@@ -312,17 +312,17 @@ resource "helm_release" "aws-load-balancer-controller" {
   name       = "aws-load-balancer-controller"
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
-  version    = "3.3.0"
+  version    = "3.4.0"
 
   set = [
     {
     name  = "clusterName"
     value = module.eks.cluster_name
     },
-    {
-      name  = "image.tag"
-      value = "v3.3.0"
-    },
+    # {
+    #   name  = "image.tag"
+    #   value = "v3.3.0"
+    # },
     {
       name  = "serviceAccount.name"
       value = local.serviceaccount_name
@@ -345,7 +345,7 @@ resource "helm_release" "aws-load-balancer-controller" {
     },
     {
       name  = "controllerConfig.featureGates.NLBGatewayAPI"
-      value = "true"
+      value = "false"
     },
     {
       name  = "controllerConfig.featureGates.ALBGatewayAPI"
