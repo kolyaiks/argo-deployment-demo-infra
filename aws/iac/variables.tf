@@ -35,5 +35,13 @@ variable "aws_console_user" {
 
 variable "worker_nodes_desired_amount" {
   description = "How many worker nodes do you want to create"
-  default = 1
+  default     = 1
+}
+
+variable "secret_value_dev" {
+  description = "AWS secret's value for dev"
+}
+
+variable "secret_value_prod" {
+  description = "AWS secret's value for prod"
 }
