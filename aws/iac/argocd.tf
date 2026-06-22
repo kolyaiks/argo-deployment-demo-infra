@@ -18,7 +18,7 @@ resource "helm_release" "argocd" {
   #    value = "nlb"
   #  }
 
-  depends_on = [module.eks, helm_release.aws-load-balancer-controller]
+  depends_on = [module.eks]
 }
 
 ## App of Apps entrypoint application
@@ -30,6 +30,7 @@ resource "kubernetes_manifest" "argocd_bootstrap_app" {
     metadata = {
       name      = "platform-bootstrap"
       namespace = "argocd"
+      finalizers = ["resources-finalizer.argocd.argoproj.io"] ## to delete all the managed apps when the root app is deleted
     }
 
     spec = {
