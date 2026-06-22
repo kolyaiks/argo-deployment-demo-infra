@@ -5,10 +5,8 @@ resource "aws_route53_record" "domain_names" {
 
   allow_overwrite = true
   name            = "${each.key}.${var.hosted_zone_name}"
-  records         = ["k8s-lbgroup-c3ecb3cba5-915037979.us-east-1.elb.amazonaws.com"] //TODO: update after provisioning ingress resource
+  records         = ["k8s-platform-external-eb6cae301a-705202795.us-east-1.elb.amazonaws.com"] //TODO: update after provisioning ingress resource
   ttl             = 60
   type            = "CNAME"
   zone_id         = data.aws_route53_zone.public_hosted_zone.zone_id
-
-  #  depends_on = [helm_release.argocd]
 }
